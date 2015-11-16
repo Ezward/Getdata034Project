@@ -22,11 +22,24 @@ subject_train <- readLines("UCI HAR Dataset/train/subject_train.txt")
 subject <- c(subject_test, subject_train)
 dataSet$subject <- subject
 
-# add the activity column
+# create the merged activity vector
 activity_test <- readLines("UCI HAR Dataset/test/y_test.txt")
 activity_train <- readLines("UCI HAR Dataset/train/y_train.txt")
 activity <- c(activity_test, activity_train)
+activity <- as.numeric(activity) # convert to numeric vector
+
+# convert activity numbers to a human readable label
+activity_labels = readLines("UCI HAR Dataset/activity_labels.txt")
+map_activity_label <- function(activity_number) {
+  activity_labels[activity_number]
+}
+activity <- sapply(activity, map_activity_label)
+
+# add the activity column to the dataSet
 dataSet$activity <- activity
+
+# save this dataset
+write.table(dataSet, "FeatureActivitySubject.dt")
 
 
 
