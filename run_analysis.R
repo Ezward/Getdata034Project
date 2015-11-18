@@ -1,5 +1,7 @@
-# download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", "dataset.zip")
-# unzip("dataset.zip")
+library(data.table)
+library(reshape2)
+# download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", "./data/dataset.zip")
+# unzip("./data/dataset.zip")
 
 # load the set of test and train data (2947 rows, 561 columns)
 X_test <- read.table("UCI HAR Dataset/test/X_test.txt")
@@ -20,16 +22,16 @@ dataSet <- dataSet[,mean_std_features]
 subject_test <- readLines("UCI HAR Dataset/test/subject_test.txt")
 subject_train <- readLines("UCI HAR Dataset/train/subject_train.txt")
 subject <- c(subject_test, subject_train)
-dataSet$subject <- subject
+dataSet$subject <- as.numeric(subject)
 
-# create the merged activity vector
+# create the merged numeric activity vector
 activity_test <- readLines("UCI HAR Dataset/test/y_test.txt")
 activity_train <- readLines("UCI HAR Dataset/train/y_train.txt")
 activity <- c(activity_test, activity_train)
 activity <- as.numeric(activity) # convert to numeric vector
 
 # convert activity numbers to a human readable label
-activity_labels = readLines("UCI HAR Dataset/activity_labels.txt")
+activity_labels = c("walking", "walkingUpStairs", "walkingDownStairs", "sitting", "standing", "laying") # readLines("UCI HAR Dataset/activity_labels.txt")
 map_activity_label <- function(activity_number) {
   activity_labels[activity_number]
 }
@@ -41,5 +43,12 @@ dataSet$activity <- activity
 # save this dataset
 write.table(dataSet, "FeatureActivitySubject.dt")
 
+#
+# create a table with the average value for each feature for each subject/activity pair
+#
+meltData <- melt(dataSet, c("subject", "activity"))
+meanData <- dcast(meltData, subject+activity ~ variable, fun=mean)
 
+# write out the averages data set
+write.table(meanData, "SubjectActivityFeatureMean.dt")
 
