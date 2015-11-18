@@ -1,6 +1,7 @@
 .RData
 .Rhistory
 .Rproj.user
+*.dt
 UCI HAR Dataset
 dataset.zip
 
