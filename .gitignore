@@ -2,6 +2,7 @@
 .Rhistory
 .Rproj.user
 *.dt
+download
 UCI HAR Dataset
 dataset.zip
 

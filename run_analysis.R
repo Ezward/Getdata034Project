@@ -1,7 +1,8 @@
 library(data.table)
 library(reshape2)
-# download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", "./data/dataset.zip")
-# unzip("./data/dataset.zip")
+if(!dir.exists("./download")) {dir.create("./download")}
+download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", "./download/dataset.zip")
+unzip("./download/dataset.zip")
 
 # load the set of test and train data (2947 rows, 561 columns)
 X_test <- read.table("UCI HAR Dataset/test/X_test.txt")
@@ -41,7 +42,7 @@ activity <- sapply(activity, map_activity_label)
 dataSet$activity <- activity
 
 # save this dataset
-write.table(dataSet, "FeatureActivitySubject.dt")
+write.table(dataSet, "SubjectActivityFeature.dt")
 
 #
 # create a table with the average value for each feature for each subject/activity pair
