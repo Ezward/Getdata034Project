@@ -1,8 +1,8 @@
 library(data.table)
 library(reshape2)
-if(!dir.exists("./download")) {dir.create("./download")}
-download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", "./download/dataset.zip")
-unzip("./download/dataset.zip")
+#if(!dir.exists("./download")) {dir.create("./download")}
+#download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", "./download/dataset.zip")
+#unzip("./download/dataset.zip")
 
 # load the set of test and train data (2947 rows, 561 columns)
 X_test <- read.table("UCI HAR Dataset/test/X_test.txt")
@@ -19,6 +19,25 @@ std_features <- grep("-std()", features, fixed=TRUE, value=TRUE)
 mean_std_features <- c(mean_features, std_features)
 dataSet <- dataSet[,mean_std_features]
 
+# rename the columns;
+# - remove initial digits
+# - initial t is time, intial f is freq (frequency)
+# - remove dashes and parens
+# - make it camelcase
+renameFunc <- function(name) {
+  newName <- sub("^[ ]*[0-9]+[ ]+", "", name)
+  newName <-  sub("^t", "time", newName)
+  newName <- sub("^f", "freq", newName)
+  newName <- sub("\\-std\\(\\)", "Std", newName)
+  newName <- sub("\\-mean\\(\\)", "Mean", newName)
+  newName <- sub("\\-X", "X", newName)
+  newName <- sub("\\-Y", "Y", newName)
+  newName <- sub("\\-Z", "Z", newName)
+  newName
+}
+colnames(dataSet) <- sapply(mean_std_features, renameFunc)
+
+
 # add the subject column
 subject_test <- readLines("UCI HAR Dataset/test/subject_test.txt")
 subject_train <- readLines("UCI HAR Dataset/train/subject_train.txt")
@@ -31,12 +50,9 @@ activity_train <- readLines("UCI HAR Dataset/train/y_train.txt")
 activity <- c(activity_test, activity_train)
 activity <- as.numeric(activity) # convert to numeric vector
 
-# convert activity numbers to a human readable label
+# convert activity numbers to a human readable label (based on UCI HAR Dataset/activity_labels.txt)
 activity_labels = c("walking", "walkingUpStairs", "walkingDownStairs", "sitting", "standing", "laying") # readLines("UCI HAR Dataset/activity_labels.txt")
-map_activity_label <- function(activity_number) {
-  activity_labels[activity_number]
-}
-activity <- sapply(activity, map_activity_label)
+activity <- factor(activity, labels=activity_labels)
 
 # add the activity column to the dataSet
 dataSet$activity <- activity
